@@ -6,47 +6,63 @@
 /*   By: cboussau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/06 15:55:11 by cboussau          #+#    #+#             */
-/*   Updated: 2016/05/07 18:16:57 by cboussau         ###   ########.fr       */
+/*   Updated: 2016/05/18 17:22:20 by cboussau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_select.h"
 
-static void	catch_signal(int i)
+void	sigtstp(int id)
 {
-	struct termios	term;
-	char	cp[2];
+	char		cp[2];
+	t_struct	*info;
 
-	if (i == SIGCONT)
-	{	
-		init_term();
-		signal(SIGTSTP, catch_signal);
-	}
-	else if (i == SIGTSTP)
-	{	
-		cp[0] = term.c_cc[VSUSP];
-		cp[1] = 0;
-		reset_term();
-		signal(SIGTSTP, SIG_DFL);
-		clean_lst();
-		ioctl(0, TIOCSTI, cp);
-	}
-	else if (i == SIGWINCH)
-		ft_putchar(0);
+	(void)id;
+	info = NULL;
+	info = stock_struct(info, 1);
+	cp[0] = info->term.c_cc[VSUSP];
+	cp[1] = 0;
+	info->term.c_lflag |= (ICANON | ECHO);
+	signal(SIGTSTP, SIG_DFL);
+	clean_lst(info);
+	tcsetattr(0, 0, &(info->term));
+	tputs(tgetstr("ve", NULL), 1, ft_putchar_int);
+	ioctl(0, TIOCSTI, cp);
 }
 
-void		ft_signal(t_intel *node, t_struct *info)
+void	sigcont(int id)
 {
-	char	buff[1];
-	int		i;
+	t_struct	*info;
 
-	i = 1;
-	while (i < 32)
-	{
-		signal(i, catch_signal);
-		i++;
-	}
-	read(1, buff, 1);
-	if (*buff == 0)
-		win_size(node, info);
+	(void)id;
+	info = NULL;
+	info = stock_struct(info, 1);
+	init_term(info);
+	signal(SIGTSTP, ft_signal);
+	win_size(id);
+}
+
+void	sigint(int id)
+{
+	t_struct *info;
+
+	(void)id;
+	info = NULL;
+	info = stock_struct(info, 1);
+	tcsetattr(0, TCSANOW, &(info->term));
+	clean_lst(info);
+	tputs(tgetstr("ve", NULL), 1, ft_putchar_int);
+	free_lst(info);
+	exit(0);
+}
+
+void	ft_signal(int id)
+{
+	(void)id;
+	signal(SIGWINCH, win_size);
+	signal(SIGCONT, sigcont);
+	signal(SIGTSTP, sigtstp);
+	signal(SIGINT, sigint);
+	signal(SIGQUIT, sigint);
+	signal(SIGTERM, sigint);
 }

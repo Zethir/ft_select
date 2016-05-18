@@ -6,32 +6,11 @@
 /*   By: cboussau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/24 22:02:17 by cboussau          #+#    #+#             */
-/*   Updated: 2016/05/06 18:56:46 by cboussau         ###   ########.fr       */
+/*   Updated: 2016/05/18 16:37:01 by cboussau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_select.h"
-
-static void	delete_elem(t_intel *node, t_lst *ptr)
-{
-	t_lst	*del;
-
-	del = ptr;
-	if (del == node->head)
-		node->head = del->next;
-	if (del->next != NULL)
-		del->next->prev = del->prev;
-	if (del->prev != NULL)
-		del->prev->next = del->next;
-	free (del);
-	node->length -= 1;
-	if (node->length == 0)
-	{
-		tputs(tgetstr("ue", NULL), 0, ft_putchar_int);
-		ft_putendl_fd("There is no elements in this list anymore.", 2);
-		exit (-1);
-	}
-}
 
 static void	print_standout(t_lst *ptr)
 {
@@ -44,7 +23,7 @@ static void	print_standout(t_lst *ptr)
 	tputs(tgetstr("me", NULL), 0, ft_putchar_int);
 }
 
-static void	print_underline(t_intel *node, t_lst *ptr, t_struct *info)
+static void	print_underline(t_lst *ptr, t_struct *info)
 {
 	tputs(tgetstr("us", NULL), 0, ft_putchar_int);
 	if (info->buff[0] == ' ' && ptr->select == 0)
@@ -57,9 +36,6 @@ static void	print_underline(t_intel *node, t_lst *ptr, t_struct *info)
 		bzero(ptr->save, ft_strlen(ptr->save));
 		ptr->select = 0;
 	}
-	else if (info->buff[0] == 127 || (info->buff[0] == 27
-				&& info->buff[1] == 91 && info->buff[2] == 51))
-		delete_elem(node, ptr);
 	else if (ptr->select == 1)
 		print_standout(ptr);
 	else
@@ -71,10 +47,10 @@ static void	print_underline(t_intel *node, t_lst *ptr, t_struct *info)
 	tputs(tgetstr("ue", NULL), 0, ft_putchar_int);
 }
 
-void	print_opt(t_intel *node, t_lst *ptr, t_struct *info)
+void		print_opt(t_lst *ptr, t_struct *info)
 {
-	if (info->i[1] == info->index[1] && info->i[0] == info->index[0])
-		print_underline(node, ptr, info);
+	if (ptr->line == 1)
+		print_underline(ptr, info);
 	else if (ptr->select == 1)
 		print_standout(ptr);
 	else

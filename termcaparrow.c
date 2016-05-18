@@ -6,95 +6,87 @@
 /*   By: cboussau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/24 20:12:50 by cboussau          #+#    #+#             */
-/*   Updated: 2016/05/07 18:07:25 by cboussau         ###   ########.fr       */
+/*   Updated: 2016/05/18 16:40:50 by cboussau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_select.h"
 
-
-static void	deal_with_left(t_struct *info)
+static void	deal_with_left(t_struct *info, t_lst *ptr)
 {
 	if (info->buff[0] == 27 && info->buff[1] == 91 && info->buff[2] == 68)
 	{
-		if (info->i[0] == 0 && info->i[1] != 1)
+		while (ptr->line != 1)
+			ptr = ptr->next;
+		ptr->line = 0;
+		if (!ptr->prev)
 		{
-			info->i[1] -= 1;
-			info->i[0] = info->realcol;
-		}
-		else if (info->i[0] == 0 && info->i[1] == 1)
-		{
-			info->i[1] = info->size_last;
-			info->i[0] = info->realcol;
+			ptr = info->node->tail;
+			ptr->line = 1;
 		}
 		else
-			info->i[0] -= 1;
+			left_arrow(info, ptr);
 	}
 }
 
-static void	deal_with_right(t_struct *info)
+static void	deal_with_right(t_struct *info, t_lst *ptr)
 {
 	if (info->buff[0] == 27 && info->buff[1] == 91 && info->buff[2] == 67)
 	{
-		if (info->i[0] == info->realcol && info->i[1] != info->size_last)
+		while (ptr->line != 1)
+			ptr = ptr->next;
+		ptr->line = 0;
+		if (!ptr->next)
 		{
-			info->i[0] = 0;
-			info->i[1] += 1;
-		}
-		else if (info->i[0] == info->realcol && info->i[1] == info->size_last)
-		{
-			info->i[0] = 0;
-			info->i[1] = 1;
+			ptr = info->node->head;
+			ptr->line = 1;
 		}
 		else
-			info->i[0] += 1;
+			right_arrow(info, ptr);
 	}
 }
 
-static void	deal_with_down(t_struct *info)
+static void	deal_with_down(t_struct *info, t_lst *ptr)
 {
-	if (info->buff[0] == 27 && info->buff[1] == 91 && info->buff[2] == 66 &&
-			info->i[1] <= info->j)
+	if (info->buff[0] == 27 && info->buff[1] == 91 && info->buff[2] == 66)
 	{
-		if (info->i[1] == info->size_last && info->i[0] == info->realcol)
+		while (ptr->line != 1)
+			ptr = ptr->next;
+		ptr->line = 0;
+		if (!ptr->next)
 		{
-			info->i[0] = 0;
-			info->i[1] = 1;
-		}
-		else if (info->i[1] == info->j)
-		{
-			info->i[0] += 1;
-			info->i[1] = 1;
+			ptr = info->node->head;
+			ptr->line = 1;
 		}
 		else
-			info->i[1] += 1;
+			ptr->next->line = 1;
 	}
 }
 
-static void	deal_with_up(t_struct *info)
+static void	deal_with_up(t_struct *info, t_lst *ptr)
 {
-	if (info->buff[0] == 27 && info->buff[1] == 91 && info->buff[2] == 65 &&
-			info->i[1] > 0)
+	if (info->buff[0] == 27 && info->buff[1] == 91 && info->buff[2] == 65)
 	{
-		if (info->i[1] == 1 && info->i[0] != 0)
+		while (ptr->line != 1)
+			ptr = ptr->next;
+		ptr->line = 0;
+		if (!ptr->prev)
 		{
-			info->i[1] = info->j;
-			info->i[0] -= 1;
-		}
-		else if (info->i[1] == 1 && info->i[0] == 0)
-		{
-			info->i[1] = info->size_last;
-			info->i[0] = info->realcol;
+			ptr = info->node->tail;
+			ptr->line = 1;
 		}
 		else
-			info->i[1] -= 1;
+			ptr->prev->line = 1;
 	}
 }
 
 void		deal_with_arrow(t_struct *info)
 {
-	deal_with_up(info);
-	deal_with_down(info);
-	deal_with_left(info);
-	deal_with_right(info);
+	t_lst	*ptr;
+
+	ptr = info->node->head;
+	deal_with_up(info, ptr);
+	deal_with_down(info, ptr);
+	deal_with_left(info, ptr);
+	deal_with_right(info, ptr);
 }
