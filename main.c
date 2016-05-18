@@ -6,7 +6,7 @@
 /*   By: cboussau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/22 18:49:21 by cboussau          #+#    #+#             */
-/*   Updated: 2016/05/18 17:11:32 by cboussau         ###   ########.fr       */
+/*   Updated: 2016/05/18 18:41:26 by cboussau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@ char	*do_select(char **argv, int id)
 	char		*str;
 
 	info = init_struct(argv);
+	info->fd = open(ttyname(0), O_RDWR);
+	if (info->fd == -1)
+		return (NULL);
 	if (init_term(info) == -1)
 		return (NULL);
 	tputs(tgetstr("cl", NULL), 1, ft_putchar_int);
@@ -32,6 +35,8 @@ char	*do_select(char **argv, int id)
 	}
 	if (reset_term(info) == -1)
 		return (NULL);
+	if (close(info->fd) < 0)
+		ft_putendl_fd("Can't close fd", 2);
 	return (str);
 }
 
@@ -51,7 +56,9 @@ int		main(int argc, char **argv)
 		return (1);
 	}
 	if (str)
+	{
 		ft_putendl(str);
-	free(str);
+		free(str);
+	}
 	return (0);
 }

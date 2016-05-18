@@ -6,7 +6,7 @@
 /*   By: cboussau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/22 18:50:27 by cboussau          #+#    #+#             */
-/*   Updated: 2016/05/18 18:10:28 by cboussau         ###   ########.fr       */
+/*   Updated: 2016/05/18 18:31:01 by cboussau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ typedef struct		s_struct
 	size_t			len;
 	size_t			delkey;
 	size_t			size_w;
+	int				fd;
 	char			buff[BUFF_SIZE];
 	struct termios	term;
 	struct s_intel	*node;

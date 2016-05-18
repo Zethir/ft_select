@@ -6,7 +6,7 @@
 /*   By: cboussau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/04/13 18:32:18 by cboussau          #+#    #+#             */
-/*   Updated: 2016/05/18 16:58:46 by cboussau         ###   ########.fr       */
+/*   Updated: 2016/05/18 18:34:18 by cboussau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 int			reset_term(t_struct *info)
 {
-	if (tcgetattr(0, &(info->term)) == -1)
+	if (tcgetattr(info->fd, &(info->term)) == -1)
 		return (-1);
 	info->term.c_lflag |= (ICANON | ECHO);
-	if (tcsetattr(0, 0, &(info->term)) == -1)
+	if (tcsetattr(info->fd, 0, &(info->term)) == -1)
 		return (-1);
 	tputs(tgetstr("ve", NULL), 1, ft_putchar_int);
 	return (0);
@@ -31,12 +31,12 @@ int			init_term(t_struct *info)
 		return (-1);
 	if (tgetent(NULL, name_term) != 1)
 		return (-1);
-	if (tcgetattr(0, &(info->term)) == -1)
+	if (tcgetattr(info->fd, &(info->term)) == -1)
 		return (-1);
 	info->term.c_lflag &= ~(ICANON | ECHO);
 	info->term.c_cc[VMIN] = 1;
 	info->term.c_cc[VTIME] = 0;
-	if (tcsetattr(0, TCSADRAIN, &(info->term)) == -1)
+	if (tcsetattr(info->fd, TCSADRAIN, &(info->term)) == -1)
 		return (-1);
 	tputs(tgetstr("vi", NULL), 1, ft_putchar_int);
 	return (0);

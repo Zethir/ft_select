@@ -6,7 +6,7 @@
 /*   By: cboussau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/06 15:55:11 by cboussau          #+#    #+#             */
-/*   Updated: 2016/05/18 17:22:20 by cboussau         ###   ########.fr       */
+/*   Updated: 2016/05/18 18:38:19 by cboussau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ void	sigtstp(int id)
 	info->term.c_lflag |= (ICANON | ECHO);
 	signal(SIGTSTP, SIG_DFL);
 	clean_lst(info);
-	tcsetattr(0, 0, &(info->term));
+	tcsetattr(info->fd, 0, &(info->term));
 	tputs(tgetstr("ve", NULL), 1, ft_putchar_int);
-	ioctl(0, TIOCSTI, cp);
+	ioctl(info->fd, TIOCSTI, cp);
 }
 
 void	sigcont(int id)
@@ -49,10 +49,12 @@ void	sigint(int id)
 	(void)id;
 	info = NULL;
 	info = stock_struct(info, 1);
-	tcsetattr(0, TCSANOW, &(info->term));
+	tcsetattr(info->fd, TCSANOW, &(info->term));
 	clean_lst(info);
 	tputs(tgetstr("ve", NULL), 1, ft_putchar_int);
 	free_lst(info);
+	if (close(info->fd) < 0)
+		ft_putendl_fd("Can't close fd", 2);
 	exit(0);
 }
 
